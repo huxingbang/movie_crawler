@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Define here the models for your scraped items
 #
 # See documentation in:
@@ -20,5 +22,12 @@ class MovieItem(Item):
     desc=Field()
     sources_link=Field()
     sources_name=Field()
+    souces=Field()
     source_url=Field()
+    cover_image=Field()
+    cover_local_image_url=Field()
+    #连续剧集数
+    count=Field()
+    #连续剧、电影、综艺
+    movie_type=Field()
     

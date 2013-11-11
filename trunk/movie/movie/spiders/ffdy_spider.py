@@ -12,34 +12,35 @@ class MoviePageSpider(BaseSpider):
     allowed_domains=["ffdy.cc"]
     root_url="http://www.ffdy.cc"
     start_urls=[
-        "http://www.ffdy.cc/movie/35483.html",
-        "http://www.ffdy.cc/movie/35900.html",
-        "http://www.ffdy.cc/teleplay/35689.html"
-        #"http://www.ffdy.cc/type,genre/movie,action/",
+        #"http://www.ffdy.cc/movie/35483.html",
+        #"http://www.ffdy.cc/movie/35900.html",
+        #"http://www.ffdy.cc/teleplay/35689.html",
+        #"http://www.ffdy.cc/anime/31512.html",
+        #"http://www.ffdy.cc/zy/35535.html",
+        "http://www.ffdy.cc/type/movie/",
         #"http://www.ffdy.cc/type/teleplay/",
         #"http://www.ffdy.cc/type/zy/",
+        #"http://www.ffdy.cc/anime/",
     ]
 
-    def parseMovieDetailPage(self, response):
-        self.parseMovieDetailPage(response)
-        '''
+    def parse(self, response):
         sel=HtmlXPathSelector(response)
         
         movieUrls=sel.xpath("//div[@class='gkpic']/a/@href").extract()
         for url in movieUrls:
             url=self.root_url+url
-            #print url
+            print url
             yield Request(url=url, callback=self.parseMovieDetailPage)
 
         next_page_zh=u'下一页'
         next_url=sel.xpath("//div[@class='list-pager']/a[text()='%s']/@href"%next_page_zh).extract()
         next_url=self.start_urls[0]+''.join(next_url)
-        #print next_url
+        print next_url
         yield Request(url=next_url, callback=self.parse)
-        '''        
+              
             
 
-    def parse(self, response):
+    def parseMovieDetailPage(self, response):
 
         movieItem=MovieItem()
 
@@ -50,6 +51,17 @@ class MoviePageSpider(BaseSpider):
 
         #资源名称
         movieItem['sources_name'] = sel.xpath("//div[@class='resourcesmain']//a/text()").extract()
+
+        #图片
+        movieItem['cover_image'] = list2str(sel.xpath("//span[@class='detail_pic1']/img/@src").extract())
+
+        souces=[]
+        souces_total=len(movieItem['sources_link'])
+        for i in range(souces_total):
+            souces.append({'link':movieItem['sources_link'][i]})  
+        for j in range(souces_total):
+            souces[j]['title']=movieItem['sources_name'][j]
+        movieItem['souces']=souces
 
         movieItem['name_zh'] = list2str(sel.xpath("//div[@id='film']/h1/text()").extract())
 
@@ -76,13 +88,25 @@ class MoviePageSpider(BaseSpider):
                 movieItem['file_type']=td_value
             elif re.search(u"对白语言", td_title):
                 movieItem['lauange']=td_value
+            elif re.search(u"集数", td_title):
+                movieItem['count']=td_value
 
+        if re.search('movie', response.url):
+            movieItem['movie_type']='movie'
+        elif re.search('teleplay', response.url):
+            movieItem['movie_type']='teleplay'
+        elif re.search('anime', response.url):
+            movieItem['movie_type']='anime'
+        elif re.search('zy', response.url):
+            movieItem['movie_type']='zy'
+        else:
+            movieItem['movie_type']=''
 
         #描述
         movieItem['desc'] = list2str(sel.xpath("//p[@class='inner_content']/text()").extract())
 
         movieItem['source_url']=response.url
 
-        #yield movieItem
-        return movieItem
+        yield movieItem
+
 

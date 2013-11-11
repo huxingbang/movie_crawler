@@ -11,7 +11,21 @@ BOT_NAME = 'movie'
 SPIDER_MODULES = ['movie.spiders']
 NEWSPIDER_MODULE = 'movie.spiders'
 
-ITEM_PIPELINES={'movie.pipelines.MoviePipeline':200}
+ITEM_PIPELINES={
+                'movie.pipelines.MoviePipeline':1,
+                'movie.pipelines.MyImagesPipeline': 200,
+                #'movie.pipelines.MysqlStorePipeline':300,
+            }
 
+SAVE_DATA=True
+DEBUG=True
+DOWNLOAD_DELAY=3
+
+JOBDIR='crawls/somespider-1'
+
+IMAGES_EXPIRES=90
+IMAGES_STORE='/Volumes/sdisk/workspace/movie_crawler/trunk/movie/data/image'
+
+DEFAULT_REQUEST_HEADERS = { 'Referer': 'http://www.ffdy.cc/'}
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = 'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.95 Safari/537.36'
