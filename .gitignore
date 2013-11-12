@@ -1,4 +1,4 @@
 *.pyc
-data
-log
-crawls
+data/
+log/
+crawls/
