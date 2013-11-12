@@ -4,8 +4,10 @@ import re
 from scrapy.spider import BaseSpider
 from scrapy.selector import HtmlXPathSelector
 from scrapy.http import Request
+from scrapy import log
 from movie.items import MovieItem
 from util.string import list2str
+import movie.settings as settings
 
 class MoviePageSpider(BaseSpider):
     name="ffdy"
@@ -23,19 +25,22 @@ class MoviePageSpider(BaseSpider):
         #"http://www.ffdy.cc/anime/",
     ]
 
+    def __init__(self):
+        log.start()
+
     def parse(self, response):
         sel=HtmlXPathSelector(response)
         
         movieUrls=sel.xpath("//div[@class='gkpic']/a/@href").extract()
         for url in movieUrls:
             url=self.root_url+url
-            print url
+            log.msg(url, level=log.INFO)
             yield Request(url=url, callback=self.parseMovieDetailPage)
 
         next_page_zh=u'下一页'
         next_url=sel.xpath("//div[@class='list-pager']/a[text()='%s']/@href"%next_page_zh).extract()
         next_url=self.start_urls[0]+''.join(next_url)
-        print next_url
+        log.msg(next_url, level=log.INFO)
         yield Request(url=next_url, callback=self.parse)
               
             

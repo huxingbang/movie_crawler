@@ -8,6 +8,7 @@ import time
 import MySQLdb
 from scrapy.contrib.pipeline.images import ImagesPipeline
 from scrapy.http import Request
+from scrapy import log
 from util.string import list2str
 import settings
 
@@ -51,10 +52,14 @@ class MoviePipeline(object):
 
 class MysqlStorePipeline(object):
     def __init__(self):
-        if not hasattr(self, 'conn'):
-            self.conn = MySQLdb.connect(user='root', passwd='123456', db='movie', host='localhost', charset="utf8", use_unicode=True)
-        if not hasattr(self, 'cursor'):
-            self.cursor = self.conn.cursor()
+        log.start()
+        self.conn = MySQLdb.connect(user=settings.MYSQL_DATABASE['user'], \
+            passwd=settings.MYSQL_DATABASE['passwd'], \
+            db=settings.MYSQL_DATABASE['db'], \
+            host=settings.MYSQL_DATABASE['host'], \
+            charset=settings.MYSQL_DATABASE['charset'], \
+            use_unicode=settings.MYSQL_DATABASE['use_unicode'])
+        self.cursor = self.conn.cursor()
 
     def process_item(self, item, spider):
         cover_image = MySQLdb.escape_string(item.get('cover_local_image_url', '').encode('utf-8'))
@@ -76,15 +81,20 @@ class MysqlStorePipeline(object):
 country, type, movie_type, first_run, vido_type, lauange, total_parts, `desc`, cover_image) VALUES \
 ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s')"%\
 (alias_name, zh_name,en_name, director, actor, country, itype, movie_type, first_run, vido_type, lauange, total_parts, desc, cover_image)
-        
-        if settings.SAVE_DATA:
-            self.cursor.execute(sql)
 
-        movie_id=self.conn.insert_id()
+        if settings.SAVE_DATA:
+            result=self.cursor.execute(sql)
+            movie_id=self.conn.insert_id()
+            self.conn.commit()
+
+        print '======================='
+        print movie_id
+        print '======================='
 
         sql="insert into crawler (movie_id, source_url) VALUES (%d, '%s')"%(movie_id, item.get('source_url', '').encode('utf-8'))
         if settings.SAVE_DATA:
             self.cursor.execute(sql)
+            self.conn.commit()
 
 
         sort=0
@@ -95,6 +105,7 @@ country, type, movie_type, first_run, vido_type, lauange, total_parts, `desc`, c
                 sql="insert into sources (movie_id, sort, url, title) VALUES (%d, %d, '%s', '%s')" %(movie_id, sort, url, title)
                 if settings.SAVE_DATA:
                     self.cursor.execute(sql)
+                    self.conn.commit()
                 sort+=1
 
         return item
