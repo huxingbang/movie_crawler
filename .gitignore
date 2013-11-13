@@ -1,4 +1,7 @@
 *.pyc
-data/
-log/
-crawls/
+*.queue
+*.seen
+*.state
+log/*
+data/*
+crawls/*

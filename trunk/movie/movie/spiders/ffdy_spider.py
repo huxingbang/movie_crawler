@@ -2,7 +2,7 @@
 
 import re
 from scrapy.spider import BaseSpider
-from scrapy.selector import HtmlXPathSelector
+from scrapy.selector import HtmlXPathSelector,Selector
 from scrapy.http import Request
 from scrapy import log
 from movie.items import MovieItem
@@ -19,18 +19,14 @@ class MoviePageSpider(BaseSpider):
         #"http://www.ffdy.cc/teleplay/35689.html",
         #"http://www.ffdy.cc/anime/31512.html",
         #"http://www.ffdy.cc/zy/35535.html",
-        "http://www.ffdy.cc/type/movie/",
-        #"http://www.ffdy.cc/type/teleplay/",
+        #"http://www.ffdy.cc/type/movie/",
+        "http://www.ffdy.cc/type/teleplay/",
         #"http://www.ffdy.cc/type/zy/",
-        #"http://www.ffdy.cc/anime/",
+        #"http://www.ffdy.cc/type/anime/",
     ]
 
-    def __init__(self):
-        log.start()
-
     def parse(self, response):
-        sel=HtmlXPathSelector(response)
-        
+        sel=Selector(response)
         movieUrls=sel.xpath("//div[@class='gkpic']/a/@href").extract()
         for url in movieUrls:
             url=self.root_url+url
@@ -41,16 +37,16 @@ class MoviePageSpider(BaseSpider):
         next_url=sel.xpath("//div[@class='list-pager']/a[text()='%s']/@href"%next_page_zh).extract()
         next_url=self.start_urls[0]+''.join(next_url)
         log.msg(next_url, level=log.INFO)
-        yield Request(url=next_url, callback=self.parse)
-              
+        yield Request(url=next_url, callback=self.parse)   
             
 
     def parseMovieDetailPage(self, response):
 
         movieItem=MovieItem()
 
-        sel=HtmlXPathSelector(response)
-        
+        sel=Selector(response)
+
+
         #下载资源
         movieItem['sources_link'] = sel.xpath("//div[@class='resourcesmain']//input[@name='checkbox']/@value").extract()
 
@@ -95,6 +91,12 @@ class MoviePageSpider(BaseSpider):
                 movieItem['lauange']=td_value
             elif re.search(u"集数", td_title):
                 movieItem['count']=td_value
+            elif re.search(u"作者", td_title):
+                movieItem['author']=td_value
+            elif re.search(u"配音", td_title):
+                movieItem['dubber']=td_value
+            elif re.search(u'主持', td_title):
+                movieItem['tv_host']=td_value
 
         if re.search('movie', response.url):
             movieItem['movie_type']='movie'

@@ -67,6 +67,9 @@ class MysqlStorePipeline(object):
         zh_name=MySQLdb.escape_string(item.get('name_zh', '').encode('utf-8'))
         en_name=MySQLdb.escape_string(item.get('name_en', '').encode('utf-8'))
         director=MySQLdb.escape_string(item.get('director', '').encode('utf-8'))
+        tv_host=MySQLdb.escape_string(item.get('tv_host', '').encode('utf-8'))
+        author=MySQLdb.escape_string(item.get('author', '').encode('utf-8'))
+        dubber=MySQLdb.escape_string(item.get('dubber', '').encode('utf-8'))
         actor=MySQLdb.escape_string(item.get('actor', '').encode('utf-8'))
         country=MySQLdb.escape_string(item.get('country', '').encode('utf-8'))
         itype=MySQLdb.escape_string(item.get('cat', '').encode('utf-8'))
@@ -77,10 +80,10 @@ class MysqlStorePipeline(object):
         total_parts=MySQLdb.escape_string(item.get('count', '').encode('utf-8'))
         desc=MySQLdb.escape_string(item.get('desc', '').encode('utf-8'))
  
-        sql="insert into movies (alias_name,zh_name, en_name, director, actor, \
+        sql="insert into movies (alias_name,zh_name, en_name, director, tv_host, author, dubber, actor, \
 country, type, movie_type, first_run, vido_type, lauange, total_parts, `desc`, cover_image) VALUES \
-('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s')"%\
-(alias_name, zh_name,en_name, director, actor, country, itype, movie_type, first_run, vido_type, lauange, total_parts, desc, cover_image)
+('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s', '%s', '%s', '%s' )"%\
+(alias_name, zh_name,en_name, director, tv_host, author, dubber, actor, country, itype, movie_type, first_run, vido_type, lauange, total_parts, desc, cover_image)
 
         if settings.SAVE_DATA:
             result=self.cursor.execute(sql)

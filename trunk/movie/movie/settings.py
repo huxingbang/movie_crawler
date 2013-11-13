@@ -34,7 +34,7 @@ MYSQL_DATABASE={
 
 IMAGES_EXPIRES=90
 IMAGES_STORE='/Volumes/sdisk/workspace/movie_crawler/trunk/movie/data/image'
-LOG_FILE='/Volumes/sdisk/workspace/movie_crawler/trunk/movie/log/log'
+LOG_FILE='/Volumes/sdisk/workspace/movie_crawler/trunk/movie/log/log.log'
 LOG_LEVEL='ERROR'
 
 DEFAULT_REQUEST_HEADERS = { 'Referer': 'http://www.ffdy.cc/'}
