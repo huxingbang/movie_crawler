@@ -19,10 +19,10 @@ class MoviePageSpider(BaseSpider):
         #"http://www.ffdy.cc/teleplay/35689.html",
         #"http://www.ffdy.cc/anime/31512.html",
         #"http://www.ffdy.cc/zy/35535.html",
-        #"http://www.ffdy.cc/type/movie/",
+        "http://www.ffdy.cc/type/movie/",
         "http://www.ffdy.cc/type/teleplay/",
-        #"http://www.ffdy.cc/type/zy/",
-        #"http://www.ffdy.cc/type/anime/",
+        "http://www.ffdy.cc/type/zy/",
+        "http://www.ffdy.cc/type/anime/",
     ]
 
     def parse(self, response):
