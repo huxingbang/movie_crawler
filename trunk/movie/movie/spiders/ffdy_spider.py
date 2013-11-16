@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+import MySQLdb
 from scrapy.spider import BaseSpider
 from scrapy.selector import HtmlXPathSelector,Selector
 from scrapy.http import Request
@@ -25,20 +26,40 @@ class MoviePageSpider(BaseSpider):
         "http://www.ffdy.cc/type/anime/",
     ]
 
+    def get_crawled_urls(self):
+        conn = MySQLdb.connect(user=settings.MYSQL_DATABASE['user'], \
+            passwd=settings.MYSQL_DATABASE['passwd'], \
+            db=settings.MYSQL_DATABASE['db'], \
+            host=settings.MYSQL_DATABASE['host'], \
+            charset=settings.MYSQL_DATABASE['charset'], \
+            use_unicode=settings.MYSQL_DATABASE['use_unicode'])
+        cursor = conn.cursor()
+        urls=[]
+        sql="select * from crawler"
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            urls.append(row[2])
+        return urls
+
+
     def parse(self, response):
+        crawled_urls=self.get_crawled_urls()
         sel=Selector(response)
         movieUrls=sel.xpath("//div[@class='gkpic']/a/@href").extract()
         for url in movieUrls:
             url=self.root_url+url
-            log.msg(url, level=log.INFO)
+            if url in crawled_urls:
+                log.msg('skip...'+url, level=log.INFO)
+                continue
+            log.msg('crawl:'+url, level=log.INFO)
             yield Request(url=url, callback=self.parseMovieDetailPage)
-
+        
         next_page_zh=u'下一页'
         next_url=sel.xpath("//div[@class='list-pager']/a[text()='%s']/@href"%next_page_zh).extract()
         next_url=self.start_urls[0]+''.join(next_url)
         log.msg(next_url, level=log.INFO)
         yield Request(url=next_url, callback=self.parse)   
-            
+        
 
     def parseMovieDetailPage(self, response):
 
